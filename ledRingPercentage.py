@@ -8,7 +8,6 @@ class ledRingPercentage:
 		self.ledCount = ledCount
 		# Create NeoPixel object with appropriate configuration.
 		self.strip = Adafruit_NeoPixel(ledCount, pinNumber, freq, dma, invert, brightness)
-		# Intialize the library (must be called once before other functions).
 		self.strip.begin()
 		
 	def showPercentage(self,value,r=0,g=0,b=255):
