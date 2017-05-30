@@ -3,7 +3,7 @@ import wiringpi as wp
 class motor:
 	def __init__(self, pinNumber):
 		self.pin = pinNumber
-		sel.state = 0
+		self.state = 0
 		if(wp.wiringPiSetup() != 0):
 			raise motorInitializationError("Startup failed")
 		wp.pinMode(pinNumber,1)

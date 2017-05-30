@@ -13,6 +13,7 @@ class ledRingPercentage:
 	def showPercentage(self,value,r=0,g=0,b=255):
 		pixelsNumber = value*self.ledCount/100.0
 		onPixels = int(pixelsNumber)
+		print onPixels
 		lastPixelRChannelValue = int((pixelsNumber - int(pixelsNumber))*r)
 		lastPixelGChannelValue = int((pixelsNumber - int(pixelsNumber))*g)
 		lastPixelBChannelValue = int((pixelsNumber - int(pixelsNumber))*b)		
@@ -21,7 +22,7 @@ class ledRingPercentage:
 		if(onPixels<16):
 			self.strip.setPixelColor(onPixels,Color(lastPixelRChannelValue,lastPixelGChannelValue,lastPixelBChannelValue))
 		self.strip.show()	
-	
+			
 	def clear(self):
 		for i in xrange(self.ledCount):
 			self.strip.setPixelColor(i,Color(0,0,0))
