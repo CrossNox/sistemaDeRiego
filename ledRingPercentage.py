@@ -13,7 +13,6 @@ class ledRingPercentage:
 	def showPercentage(self,value,r=0,g=0,b=255):
 		pixelsNumber = value*self.ledCount/100.0
 		onPixels = int(pixelsNumber)
-		print onPixels
 		lastPixelRChannelValue = int((pixelsNumber - int(pixelsNumber))*r)
 		lastPixelGChannelValue = int((pixelsNumber - int(pixelsNumber))*g)
 		lastPixelBChannelValue = int((pixelsNumber - int(pixelsNumber))*b)		
