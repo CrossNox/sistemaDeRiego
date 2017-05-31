@@ -1,0 +1,133 @@
+<!DOCTYPE html> 
+<head> 
+   
+  <style> 
+    body { 
+        text-align: center; 
+        padding: 0px; 
+        margin: 0px; 
+    } 
+    .clear:before, 
+    .clear:after { 
+        content: ""; 
+        display: table; 
+    } 
+    .clear:after { 
+        clear: both; 
+    } 
+    .clear { 
+        *zoom: 1; 
+    } 
+    .gauge { 
+        display: block; 
+        float: center; 
+    } 
+    #g1 { 
+        width: 50%; 
+    } 
+    #g2 { 
+        width: 50%; 
+    } 
+    </style> 
+   <title>AtomPot</title> 
+   <!-- Latest compiled and minified CSS --> 
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> 
+   <!-- Optional theme --> 
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous"> 
+   <!-- Latest compiled and minified JavaScript --> 
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script> 
+   <script src="https://code.jquery.com/jquery-3.1.1.min.js" ></script> 
+   <meta name="viewport" content="width=device-width, initial-scale=1"> 
+   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script> 
+    
+   <script src="{{ url_for('static', filename='raphael-2.1.4.min.js') }}"></script> 
+   <script src="{{ url_for('static', filename='justgage.js') }}"></script> 
+    
+    
+</head> 
+<body> 
+  <div class="row"> 
+    <div class="col-md-12 col-xs-12"> 
+      <h1>AtomPot - Proyecto de Laboratorio</h1> 
+    </div>     
+  </div> 
+   <div class="row"> 
+     <div class="col-md-12 col-xs-12"> 
+      <h2><strong>Motor: </strong><span id="motorStatus">Apagado</span></h2> 
+     </div> 
+     </div> 
+     <div class="row"> 
+    <div class="col-md-12 col-xs-12"> 
+      <button id="btnMotor" name="btnMotor" type="button" class="btn btn-info" onclick="toggleMotor()">Prender</button> 
+    </div> 
+     </div> 
+      
+  </div>  
+    
+   <div class="row"> 
+   <h3>Lecturas de los sensores (ultima actualizacion: <span id="readingsUpdated"></span>)</h3> 
+        <div class="col-md-6 col-xs-6"> 
+      <div id="tempGauge" class="gauge"></div> 
+        </div> 
+      <div class="col-md-6 col-xs-6"> 
+      <div id="humGauge" class="gauge"></div> 
+      </div> 
+        </div>         
+   </div> 
+    
+   </body> 
+   <script type="text/javascript" charset="utf-8"> 
+      
+     var motorVal = 0;     
+      
+      $(document).ready(function() { 
+        var socket = io.connect('http://' + document.domain + ':' + location.port); 
+         
+        var g1 = new JustGage({ 
+            id: "tempGauge", 
+            value: 0, 
+            min: 0, 
+            max: 50, 
+            title: "Temperatura", 
+        }); 
+  
+        var g2 = new JustGage({ 
+            id: "humGauge", 
+            value: 0, 
+            min: 0, 
+            max: 100, 
+            title: "Humedad", 
+        }); 
+         
+        socket.on('connect', function() { 
+          socket.emit('my event', {data: 'I\'m connected!'}); 
+        }); 
+         
+        socket.on('updatedht11', function(msg) { 
+ 
+    var nDate = new Date(); 
+          $('#readingsUpdated').text(nDate.getHours() + 'h:' + nDate.getMinutes() + 
+             'm:' + nDate.getSeconds() + 's').html(); 
+          g1.refresh(msg.temp); 
+          g2.refresh(msg.hum); 
+        });            
+       
+      }); 
+       
+      function toggleMotor() { 
+    var socket = io.connect('http://' + document.domain + ':' + location.port); 
+    if(motorVal == 0) { 
+      socket.emit('toggleMotor', 1); 
+      motorVal = 1;   
+      $('#motorStatus').text('Prendido').html(); 
+      $('#btnMotor').text('Apagar').html();   
+    } 
+    else if(motorVal == 1){ 
+      socket.emit('toggleMotor', 0); 
+      motorVal = 0;   
+      $('#motorStatus').text('Apagado').html(); 
+      $('#btnMotor').text('Prender').html();   
+    } 
+    }; 
+   </script> 
+</html> 
