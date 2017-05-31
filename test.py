@@ -3,8 +3,8 @@ import ledRingPercentage
 import time
 import dht11
 
-m = motor.motor(21)
-l = ledRingPercentage.ledRingPercentage(12)
+m = motor.motor(13)
+l = ledRingPercentage.ledRingPercentage(18)
 d = dht11.dht11(4)
 
 m.turnOn()
