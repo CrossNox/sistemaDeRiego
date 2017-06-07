@@ -1,10 +1,14 @@
+#!/usr/bin/env python
+
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, send
 import dht11
 import ledRingPercentage as lrp
 import motor
+from psychrometricTable import getHR
 from threading import Thread, Event
 from time import sleep
+import math
 
 app = Flask(__name__)
 app.config['SECRET KEY']='secret'
@@ -12,28 +16,37 @@ socketio = SocketIO(app)
 
 m = motor.motor(13)
 l = lrp.ledRingPercentage(18)
-d = dht11.dht11(4)
+db = dht11.dht11(4)
+wb = dht11.dht11(3)
 
 thread = Thread()
 thread_stop_event = Event()
 
 class dhtUpdater(Thread):
-	def __init__(self,dht1,lrp,dht2=None,usePMT=False):
-		self.delay = 5
-		self.dht1 = dht1
-		self.dht2 = dht2
+	def __init__(self,db,lrp,wb):
+		self.delay = 10
+		self.db = db
+		self.wb = wb
 		self.lrp = lrp
 		self.lrp.clear()
-		self.usePMT = usePMT
 		super(dhtUpdater, self).__init__()
 		
 	def readAndUpdate(self):
 		print 'reading dht'
 		while not thread_stop_event.isSet():
-			hum, temp = self.dht1.readHumAndTemp()
-			if(hum <= 100):
-                                self.lrp.showPercentage(hum);
-                                socketio.emit('updatedht11', {'hum':hum, 'temp':temp})
+			humdry, tempdry = self.db.readHumAndTemp()
+			humwet, tempwet = self.wb.readHumAndTemp()
+			humPMT = getHR(tempdry,tempwet)
+			print 'humdry=',humdry,' tempdry=',tempdry
+			print 'humwet=',humwet,' tempwet=',tempwet
+			print 'humPMT=',humPMT
+			if(humdry <= 100 and humwet <= 100):
+				if(humdry < 60 and humPMT < 60 and math.abs(humdry-humPMT) < 5 and tempdry > 25):
+					self.lrp.showPercentage(humdry);
+					socketio.emit('update', {'humdry':humdry, 'tempdry':tempdry, 'humPMT':humPMT, 'motorStatus':1})
+					sleep(10)
+				self.lrp.showPercentage(humdry);
+				socketio.emit('update', {'humdry':humdry, 'tempdry':tempdry, 'humPMT':humPMT, 'motorStatus':0})
 			sleep(self.delay)
 	
 	def run(self):
@@ -51,7 +64,7 @@ def handle_dht11():
 	print 'Connected'
 	if not thread.isAlive():
 		print 'starting dht updater'
-		thread = dhtUpdater(dht1=d, lrp=l)
+		thread = dhtUpdater(db=db, lrp=l, wb=wb)
 		thread.start()
 
 @socketio.on('my event')

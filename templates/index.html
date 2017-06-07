@@ -51,31 +51,31 @@
       <h1>AtomPot - Proyecto de Laboratorio</h1> 
     </div>     
   </div> 
-   <div class="row"> 
-     <div class="col-md-12 col-xs-12"> 
+  <div class="row"> 
+    <div class="col-md-12 col-xs-12"> 
       <h2><strong>Motor: </strong><span id="motorStatus">Apagado</span></h2> 
-     </div> 
-     </div> 
-     <div class="row"> 
+    </div> 
+  </div> 
+  <div class="row"> 
     <div class="col-md-12 col-xs-12"> 
       <button id="btnMotor" name="btnMotor" type="button" class="btn btn-info" onclick="toggleMotor()">Prender</button> 
     </div> 
-     </div> 
-      
-  </div>  
-    
-   <div class="row"> 
-   <h3>Lecturas de los sensores (ultima actualizacion: <span id="readingsUpdated"></span>)</h3> 
-        <div class="col-md-6 col-xs-6"> 
-      <div id="tempGauge" class="gauge"></div> 
-        </div> 
-      <div class="col-md-6 col-xs-6"> 
-      <div id="humGauge" class="gauge"></div> 
+  </div> 
+  <div class="row"> 
+    <div class="col-md-12 col-xs-12">
+	  <h3>Lecturas de los sensores (ultima actualizacion: <span id="readingsUpdated"></span>)</h3> 
+      <div class="col-md-4 col-xs-4"> 
+        <div id="tempGauge" class="gauge"></div> 
       </div> 
-        </div>         
-   </div> 
-    
-   </body> 
+      <div class="col-md-4 col-xs-4"> 
+        <div id="humGauge" class="gauge"></div> 
+      </div> 
+      <div class="col-md-4 col-xs-4"> 
+        <div id="humPMTGauge" class="gauge"></div> 
+      </div>
+	</div>     
+   </div>         
+</body> 
    <script type="text/javascript" charset="utf-8"> 
       
      var motorVal = 0;     
@@ -98,18 +98,37 @@
             max: 100, 
             title: "Humedad", 
         }); 
+        
+        var g3 = new JustGage({ 
+            id: "humPMTGauge", 
+            value: 0, 
+            min: 0, 
+            max: 100, 
+            title: "Humedad PMT", 
+        }); 
          
         socket.on('connect', function() { 
           socket.emit('my event', {data: 'I\'m connected!'}); 
         }); 
          
-        socket.on('updatedht11', function(msg) { 
+        socket.on('update', function(msg) { 
  
     var nDate = new Date(); 
-          $('#readingsUpdated').text(nDate.getHours() + 'h:' + nDate.getMinutes() + 
-             'm:' + nDate.getSeconds() + 's').html(); 
-          g1.refresh(msg.temp); 
-          g2.refresh(msg.hum); 
+          $('#readingsUpdated').text(nDate.getHours() + ':' + nDate.getMinutes() + 
+             ':' + nDate.getSeconds() + '').html(); 
+          g1.refresh(msg.tempdry); 
+          g2.refresh(msg.humdry);
+          g3.refresh(msg.humPMT);
+          if(msg.motorStatus == 0) {
+			motorVal = 0;   
+			$('#motorStatus').text('Apagado').html(); 
+			$('#btnMotor').text('Prender').html();  
+		  }
+		  else {
+			motorVal = 1;   
+			$('#motorStatus').text('Prendido').html(); 
+			$('#btnMotor').text('Apagar').html();  
+		  }
         });            
        
       }); 
