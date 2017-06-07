@@ -41,10 +41,12 @@ class dhtUpdater(Thread):
 			print 'humwet=',humwet,' tempwet=',tempwet
 			print 'humPMT=',humPMT
 			if(humdry <= 100 and humwet <= 100):
-				if(humdry < 60 and humPMT < 60 and math.abs(humdry-humPMT) < 5 and tempdry > 25):
+				if(humdry < 60 and humPMT < 60 and abs(humdry-humPMT) < 5 or tempdry > 20):
 					self.lrp.showPercentage(humdry);
 					socketio.emit('update', {'humdry':humdry, 'tempdry':tempdry, 'humPMT':humPMT, 'motorStatus':1})
+					m.turnOn()
 					sleep(10)
+					m.turnOff()
 				self.lrp.showPercentage(humdry);
 				socketio.emit('update', {'humdry':humdry, 'tempdry':tempdry, 'humPMT':humPMT, 'motorStatus':0})
 			sleep(self.delay)

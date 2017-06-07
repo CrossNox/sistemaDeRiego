@@ -122,11 +122,11 @@
           if(msg.motorStatus == 0) {
 			motorVal = 0;   
 			$('#motorStatus').text('Apagado').html(); 
-			$('#btnMotor').text('Prender').html();  
+			$('#btnMotor').text('Encender').html();  
 		  }
 		  else {
 			motorVal = 1;   
-			$('#motorStatus').text('Prendido').html(); 
+			$('#motorStatus').text('Encendido').html(); 
 			$('#btnMotor').text('Apagar').html();  
 		  }
         });            
@@ -138,14 +138,14 @@
     if(motorVal == 0) { 
       socket.emit('toggleMotor', 1); 
       motorVal = 1;   
-      $('#motorStatus').text('Prendido').html(); 
+      $('#motorStatus').text('Encendido').html(); 
       $('#btnMotor').text('Apagar').html();   
     } 
     else if(motorVal == 1){ 
       socket.emit('toggleMotor', 0); 
       motorVal = 0;   
       $('#motorStatus').text('Apagado').html(); 
-      $('#btnMotor').text('Prender').html();   
+      $('#btnMotor').text('Encender').html();   
     } 
     }; 
    </script> 
